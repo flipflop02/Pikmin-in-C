@@ -35,22 +35,42 @@ t_game *init_struct(t_game *game) {
     game->en->pkmn_field = NULL;
     game->en->pkmn_field = generate_pikmin_field(game->en->pkmn_field, 100);
 
-    for (;  game->en->pkmn_field->prev != NULL ;  game->en->pkmn_field = game->en->pkmn_field->prev)
+    for (; game->en->pkmn_field->prev != NULL; game->en->pkmn_field = game->en->pkmn_field->prev)
         printf("[%d]", game->en->pkmn_field->place);
     printf("[%d]\n", game->en->pkmn_field->place);
     return (game);
 }
 
 t_window *init_window(t_window *win) {
-    win->length = 1280;
+    win->height = 1280;
     win->width = 720;
-    win->mode = (sfVideoMode){win->length, win->width, 32};
+    win->mode = (sfVideoMode){win->height, win->width, 32};
     win->window = sfRenderWindow_create(win->mode, "Pikmin C", sfResize | sfClose, NULL);
     sfRenderWindow_setFramerateLimit(win->window, 60);
     return (win);
 }
 
+t_character *init_character (t_character *chara, char *name) {
+    chara->texture_front = sfTexture_createFromFile("ressources/textures/olimar/olimar_front.png", NULL);
+    chara->texture_back = sfTexture_createFromFile("ressources/textures/olimar/olimar_back.png", NULL);
+    chara->texture_left = sfTexture_createFromFile("ressources/textures/olimar/olimar_left.png", NULL);
+    chara->texture_right = sfTexture_createFromFile("ressources/textures/olimar/olimar_right.png", NULL);
+    chara->sprite = sfSprite_create();
+    chara->rect.height = 60;
+    chara->rect.width = 60;
+    chara->rect.top = 0;
+    chara->rect.left = 0;
+    chara->scale.x = 1.5;
+    chara->scale.y = 1.5;
+    sfSprite_setTexture(chara->sprite, chara->texture_front, sfTrue);
+    sfSprite_setTextureRect(chara->sprite, chara->rect);
+    sfSprite_setScale(chara->sprite, chara->scale);
+    return (chara);
+}
+
 t_entity *init_entity(t_entity *en) {
+    en->olimar = init_character(en->olimar, "olimar");
+    return (en);
 }
 
 t_game *global_init(t_game *game) {
@@ -60,17 +80,10 @@ t_game *global_init(t_game *game) {
     return (game);
 }
 
-int event(t_game *game) {
-    while (sfRenderWindow_pollEvent(game->win->window, &game->event)){
-        if (game->event.type == sfEvtClosed)
-            sfRenderWindow_close(game->win->window);
-    }
-}
-
 int game_loop(t_game *game) {
       while (sfRenderWindow_isOpen(game->win->window)) {
-        event(game);
         sfRenderWindow_clear(game->win->window, sfBlack);
+        world(game);
         sfRenderWindow_display(game->win->window);
     }
 }

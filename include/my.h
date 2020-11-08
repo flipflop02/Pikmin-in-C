@@ -27,7 +27,7 @@
 
 typedef struct t_window {
     sfVideoMode mode;
-    int length;
+    int height;
     int width;
     sfRenderWindow *window;
 }t_window;
@@ -36,6 +36,7 @@ typedef struct t_pikminfield {
     int place;
     char *state;
     sfVector2f hitbox;
+    sfIntRect rect;
     sfSprite *sprite;
     sfTexture *texture;
     struct t_pikminfield *next;
@@ -44,10 +45,18 @@ typedef struct t_pikminfield {
 
 typedef struct t_character {
     sfSprite *sprite;
-    sfTexture *texture;
+    sfTexture *texture_front;
+    sfTexture *texture_back;
+    sfTexture *texture_left;
+    sfTexture *texture_right;
+    sfIntRect rect;
     sfVector2f hitbox;
     sfVector2f scale;
     sfVector2f pos;
+    int up;
+    int down;
+    int left;
+    int right;
 }t_character;
 
 typedef struct t_entity {
@@ -60,5 +69,7 @@ typedef struct t_game {
     t_entity *en;
     sfEvent event;
 }t_game;
+
+int world(t_game *game);
 
 #endif
