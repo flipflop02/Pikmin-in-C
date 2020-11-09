@@ -34,8 +34,11 @@ typedef struct t_window {
 
 typedef struct t_pikminfield {
     int place;
-    char *state;
+    char *type;
+    int state;
+    sfVector2f pos;
     sfVector2f hitbox;
+    sfVector2f scale;
     sfIntRect rect;
     sfSprite *sprite;
     sfTexture *texture;

@@ -8,6 +8,13 @@ t_pikminfield *new_node_pf(t_pikminfield *list, int count)
 {
     t_pikminfield *new = malloc(sizeof(t_pikminfield));
     new->place = count;
+    new->type = strdup("NONE");
+    new->state = 0;
+    new->texture = sfTexture_createFromFile("ressources/textures/red/test.png", NULL);
+    new->pos.x = 0;
+    new->pos.y = 0;
+    new->sprite = sfSprite_create();
+    sfSprite_setTexture(new->sprite, new->texture, sfTrue);
     if (list == NULL){
         new->next = NULL;
         new->prev = NULL;
@@ -20,8 +27,8 @@ t_pikminfield *new_node_pf(t_pikminfield *list, int count)
 
 t_pikminfield *generate_pikmin_field(t_pikminfield *pkmn_field, int count)
 {
-    for (int i = 1; i <= count; i++)
-        pkmn_field = new_node_pf(pkmn_field, i);
+    for (int i = 0; i < count; i++)
+        pkmn_field = new_node_pf(pkmn_field, count - i);
 
     for (;pkmn_field->next != NULL; pkmn_field = pkmn_field->next);
     return (pkmn_field);
@@ -62,6 +69,8 @@ t_character *init_character (t_character *chara, char *name) {
     chara->rect.left = 0;
     chara->scale.x = 1.5;
     chara->scale.y = 1.5;
+    chara->pos.x = 0;
+    chara->pos.y = 0;
     sfSprite_setTexture(chara->sprite, chara->texture_front, sfTrue);
     sfSprite_setTextureRect(chara->sprite, chara->rect);
     sfSprite_setScale(chara->sprite, chara->scale);
