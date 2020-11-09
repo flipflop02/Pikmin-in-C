@@ -7,15 +7,19 @@
 
 #include "../../include/my.h"
 
-void draw_pikmin(sfRenderWindow *window, t_pikminfield *pkmn_field) {
+void draw_pikmin(sfRenderWindow *window, t_pikminfield *pkmn_field, int i) {
     t_pikminfield begin = *(pkmn_field);
     for (; pkmn_field->next != NULL; pkmn_field = pkmn_field->next) {
-        if (strcmp(pkmn_field->type,"NONE") != 0)
-            sfRenderWindow_drawSprite(window, pkmn_field->sprite, NULL);
+        if (strcmp(pkmn_field->type,"NONE") != 0) {
+            if (pkmn_field->pos.y + pkmn_field->width == i) {
+                sfRenderWindow_drawSprite(window, pkmn_field->sprite, NULL);
+            }
+            // printf("%f\n", (pkmn_field->pos.y));
+        }
     }
-    if ((pkmn_field->next == NULL) && (strcmp(pkmn_field->type,"NONE") != 0)) {
-        sfRenderWindow_drawSprite(window, pkmn_field->sprite, NULL);
-    }
+    //if ((pkmn_field->next == NULL) && (strcmp(pkmn_field->type,"NONE") != 0)) {
+    //    sfRenderWindow_drawSprite(window, pkmn_field->sprite, NULL);
+    //}
     pkmn_field = &begin;
 }
 
@@ -27,7 +31,6 @@ sfVector2f getDistanceFromCaptain(t_character *chara, t_pikminfield *pikmin) {
     for (; pikmin->pos.y + j < chara->pos.y + 30; j++);
     res.x = i;
     res.y = j;
-    //printf("%d %d\n", i, j);
     return (res);
 }
 
@@ -40,25 +43,29 @@ void following(t_character *chara, t_pikminfield *pikmin) {
     for (; pikmin->pos.x + i > chara->pos.x; i--);
     for (; pikmin->pos.y + j > chara->pos.y; j--);
     if (i > 0)
-        pikmin->pos.x++;
+        pikmin->pos.x = pikmin->pos.x + pikmin->speed;
     if (i < 0)
-        pikmin->pos.x--;
+        pikmin->pos.x = pikmin->pos.x - pikmin->speed;
     if (j > 0)
-        pikmin->pos.y++;
+        pikmin->pos.y = pikmin->pos.y + pikmin->speed;
     if (j < 0)
-        pikmin->pos.y--;
+        pikmin->pos.y = pikmin->pos.y - pikmin->speed;
     sfSprite_setPosition(pikmin->sprite, pikmin->pos);
 }
 
 void handle_state(t_game *game, t_pikminfield *pkmn_field) {
         t_pikminfield begin = *(pkmn_field);
     for (; pkmn_field->next != NULL; pkmn_field = pkmn_field->next) {
-        if (pkmn_field->state == 1)
+        if (pkmn_field->state == 1) {
+            handle_pikmin_hitbox(pkmn_field);
             following(game->en->olimar, pkmn_field);
+        }
     }
     if ((pkmn_field->next == NULL)) {
-        if (pkmn_field->state == 1)
+        if (pkmn_field->state == 1) {
+            handle_pikmin_hitbox(pkmn_field);
             following(game->en->olimar, pkmn_field);
+        }
             
     }
     pkmn_field = &begin;
@@ -70,7 +77,11 @@ t_pikminfield *add_new_pikmin(t_pikminfield *pkmn_field, char *type) {
         if (strcmp(pkmn_field->type,"NONE") == 0) {
             pkmn_field->type = strdup(type);
             pkmn_field->state = 1;
-            printf("Added %d pikmin\n", pkmn_field->place);
+            pkmn_field->speed = 0;
+            //      pkmn_field->speed = rand()%4;
+            // if (pkmn_field->speed == 0)
+                // pkmn_field->speed++;
+            printf("Added %d pikmin %d\n", pkmn_field->place, pkmn_field->speed);
             break;
         }
     }
@@ -144,12 +155,42 @@ int draw_character(sfRenderWindow *window, t_character *olimar)
     sfRenderWindow_drawSprite(window, olimar->sprite, NULL);
 }
 
+void handle_chara_hitbox(t_character *chara)
+{
+    chara->hitbox->x = chara->pos.x + 2;
+    chara->hitbox->y = chara->pos.y + 45;
+    chara->hitbox->height = 13 * chara->scale.x;
+    chara->hitbox->width = 14 * chara->scale.y;
+}
+
+void handle_pikmin_hitbox(t_pikminfield *pikmin)
+{
+    pikmin->hitbox->x = pikmin->pos.x + 4;
+    pikmin->hitbox->y = pikmin->pos.y + 25;
+    pikmin->hitbox->height = 7 * pikmin->scale.x;
+    pikmin->hitbox->width = 11 * pikmin->scale.y;
+}
+
+void draw_screen_3d(sfRenderWindow *window, t_entity *entity, int width) {
+    for (int j = 0; j <= width; j++) {
+        if (j == ((int)entity->olimar->pos.y + entity->olimar->width)) {
+            draw_character(window, entity->olimar);
+            //  printf("drawing %d %d\n", j, ((int)entity->olimar->pos.y + entity->olimar->width));
+        }
+        draw_pikmin(window, entity->pkmn_field, j);
+        //  draw_pikmin(window, entity->pkmn_field, i);
+    }
+    //   draw_pikmin(window, entity->pkmn_field, i);
+}
+
 int world(t_game *game)
 {
-    printf("Beeeeeeeeem\n");
     world_event(game);
     handle_character_movement(game->en->olimar);
     handle_state(game, game->en->pkmn_field);
-    draw_character(game->win->window, game->en->olimar);
-    draw_pikmin(game->win->window, game->en->pkmn_field);
+    handle_chara_hitbox(game->en->olimar);
+    //printf("[Hitbox | x : %d | y : %d | h : %d | w : %d]\n", game->en->olimar->hitbox->x, game->en->olimar->hitbox->y, game->en->olimar->hitbox->height, game->en->olimar->hitbox->width);
+    draw_screen_3d(game->win->window, game->en, game->win->width);
+    //draw_character(game->win->window, game->en->olimar);
+    // draw_pikmin(game->win->window, game->en->pkmn_field);
 }

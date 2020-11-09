@@ -25,8 +25,17 @@
 #include <SFML/Graphics/Export.h>
 #include <SFML/System/Time.h>
 
+typedef struct t_hitbox_square {
+    int x;
+    int y;
+    int width;
+    int height;
+}t_hit_s;
+
 typedef struct t_window {
     sfVideoMode mode;
+    sfView *view;
+    sfFloatRect size;
     int height;
     int width;
     sfRenderWindow *window;
@@ -34,14 +43,16 @@ typedef struct t_window {
 
 typedef struct t_pikminfield {
     int place;
-    char *type;
     int state;
+    int width;
+    int speed;
+    char *type;
     sfVector2f pos;
-    sfVector2f hitbox;
     sfVector2f scale;
     sfIntRect rect;
     sfSprite *sprite;
     sfTexture *texture;
+    t_hit_s *hitbox;
     struct t_pikminfield *next;
     struct t_pikminfield *prev;
 }t_pikminfield;
@@ -52,10 +63,11 @@ typedef struct t_character {
     sfTexture *texture_back;
     sfTexture *texture_left;
     sfTexture *texture_right;
+    t_hit_s *hitbox;
     sfIntRect rect;
-    sfVector2f hitbox;
     sfVector2f scale;
     sfVector2f pos;
+    int width;
     int up;
     int down;
     int left;
@@ -74,5 +86,6 @@ typedef struct t_game {
 }t_game;
 
 int world(t_game *game);
+void handle_pikmin_hitbox(t_pikminfield *pikmin);
 
 #endif
