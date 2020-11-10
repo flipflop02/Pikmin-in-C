@@ -46,12 +46,14 @@ typedef struct t_pikminfield {
     int state;
     int width;
     int speed;
+    sfVector2f pos_c;
     char *type;
     sfVector2f pos;
     sfVector2f scale;
     sfIntRect rect;
     sfSprite *sprite;
     sfTexture *texture;
+    sfVector2f relative_captain;
     t_hit_s *hitbox;
     struct t_pikminfield *next;
     struct t_pikminfield *prev;
@@ -72,6 +74,7 @@ typedef struct t_character {
     int down;
     int left;
     int right;
+    sfVector2f point;
 }t_character;
 
 typedef struct t_entity {

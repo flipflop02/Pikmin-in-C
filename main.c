@@ -20,6 +20,8 @@ t_pikminfield *new_node_pf(t_pikminfield *list, int count)
     new->texture = sfTexture_createFromFile("ressources/textures/red/test.png", NULL);
     new->pos.x = 0;
     new->pos.y = 0;
+    new->relative_captain.x = (((count-1)/10) * 25);
+    new->relative_captain.y = (((count-1)%10) * 25);
     new->sprite = sfSprite_create();
     sfSprite_setTexture(new->sprite, new->texture, sfTrue);
     if (list == NULL){
