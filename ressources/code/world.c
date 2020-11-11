@@ -2,7 +2,7 @@
 ** Pikmin C project
 ** 
 **
-** 
+**  position dynamique à faire
 */
 
 #include "../../include/my.h"
@@ -189,12 +189,50 @@ void draw_screen_3d(sfRenderWindow *window, t_entity *entity, int width) {
     }
 }
 
+void draw_shadow(sfRenderWindow *window, t_character *character, t_pikminfield *pkmn_field)
+{
+    t_pikminfield begin = *(pkmn_field);
+    sfRenderWindow_drawSprite(window, character->shadow->sprite, NULL);
+    for (; pkmn_field->next != NULL; pkmn_field = pkmn_field->next) {
+        if (strcmp(pkmn_field->type,"NONE") != 0) {
+            sfRenderWindow_drawSprite(window, pkmn_field->shadow->sprite, NULL);
+        }
+    }
+    if ((pkmn_field->next == NULL) && (strcmp(pkmn_field->type,"NONE") != 0)) {
+        sfRenderWindow_drawSprite(window, pkmn_field->shadow->sprite, NULL);
+    }
+    pkmn_field = &begin;
+}
+
+void handle_shadow_pos(t_character *chara, t_pikminfield *pkmn_field)
+{
+    t_pikminfield begin = *(pkmn_field);
+    chara->shadow->pos.x = chara->pos.x;
+    chara->shadow->pos.y = chara->pos.y + 74;
+    sfSprite_setPosition(chara->shadow->sprite, chara->shadow->pos);
+    for (; pkmn_field->next != NULL; pkmn_field = pkmn_field->next) {
+        if (strcmp(pkmn_field->type,"NONE") != 0) {
+            pkmn_field->shadow->pos.x = pkmn_field->pos.x - 8;
+            pkmn_field->shadow->pos.y = pkmn_field->pos.y + 30;
+            sfSprite_setPosition(pkmn_field->shadow->sprite, pkmn_field->shadow->pos);
+        }
+    }
+    if ((pkmn_field->next == NULL) && (strcmp(pkmn_field->type,"NONE") != 0)) {
+        pkmn_field->shadow->pos.x = pkmn_field->pos.x - 8;
+        pkmn_field->shadow->pos.y = pkmn_field->pos.y + 30;
+        sfSprite_setPosition(pkmn_field->shadow->sprite, pkmn_field->shadow->pos);
+    }
+    pkmn_field = &begin;
+}
+
 int world(t_game *game)
 {
     world_event(game);
     handle_character_movement(game->en->olimar);
     handle_state(game, game->en->pkmn_field);
     handle_chara_hitbox(game->en->olimar);
+    handle_shadow_pos(game->en->olimar, game->en->pkmn_field);
     //printf("[Hitbox | x : %d | y : %d | h : %d | w : %d]\n", game->en->olimar->hitbox->x, game->en->olimar->hitbox->y, game->en->olimar->hitbox->height, game->en->olimar->hitbox->width);
+    draw_shadow(game->win->window, game->en->olimar, game->en->pkmn_field);
     draw_screen_3d(game->win->window, game->en, game->win->width);
 }

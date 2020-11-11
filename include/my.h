@@ -32,6 +32,13 @@ typedef struct t_hitbox_square {
     int height;
 }t_hit_s;
 
+typedef struct t_shadow {
+    sfSprite *sprite;
+    sfTexture *texture;
+    sfVector2f pos;
+    sfVector2f scale;
+}t_shadow;
+
 typedef struct t_window {
     sfVideoMode mode;
     sfView *view;
@@ -43,6 +50,7 @@ typedef struct t_window {
 
 typedef struct t_pikminfield {
     int place;
+    int ordering;
     int state;
     int width;
     int speed;
@@ -55,6 +63,7 @@ typedef struct t_pikminfield {
     sfTexture *texture;
     sfVector2f relative_captain;
     t_hit_s *hitbox;
+    t_shadow *shadow;
     struct t_pikminfield *next;
     struct t_pikminfield *prev;
 }t_pikminfield;
@@ -66,6 +75,7 @@ typedef struct t_character {
     sfTexture *texture_left;
     sfTexture *texture_right;
     t_hit_s *hitbox;
+    t_shadow *shadow;
     sfIntRect rect;
     sfVector2f scale;
     sfVector2f pos;
